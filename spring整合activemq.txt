@@ -1,0 +1,26 @@
+####spring整合activemq####
+ <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+       <!-- 设置连接工厂 -->
+       <property name="connectionFactory" ref="connectionFactory"></property>
+       <!-- 设置默认目的地 类型为Destination-->
+       <property name="defaultDestination" ref="subject"></property>
+       <!-- 设置默认目的地名称 类型为String-->
+       <property name="defaultDestinationName" value="subject"></property>        
+       <!-- 设置接收消息超时时间 默认为0L 单位毫秒 -->
+       <property name="receiveTimeout" value="0L"></property>
+       <!-- 设置是否启用 priority,timeTolive 默认为false-->
+       <property name="explicitQosEnabled" value="true"></property>        
+       <!-- 设置发送消息的优先级，默认为4 -->
+       <property name="priority" value="4"></property>
+       <!-- 设置消息保留时间,默认为0L,单位为毫秒 -->
+       <property name="timeToLive" value="1000"></property>
+       <!-- 以下属性来自JmsTemplate继承的JmsDestinationAccessor --><#-- false p2p,true topic -->
+       <property name="pubSubDomain" value="true"></property>
+       <property name="destinationResolver" ref=""></property>
+       <!-- 以下属性来自JmsAccessor -->
+       <property name="sessionAcknowledgeModeName" value=""></property>
+       <!-- 1,2,3分别对应AUTO_ACKNOWLEDGE,CLIENT_ACKNOWLEDGE,DUPS_OK_ACKNOWLEDGE,默认1 -->
+       <property name="sessionAcknowledgeMode" value="1"></property>
+       <!-- 是否session作为事件来执行,默认false -->
+       <property name="sessionTransacted" value="false"></property>
+ </bean>
