@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<context:component-scan base-package="com.example.spring.mq" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:include-filter>
+	</context:component-scan>
+
+
+
+
+
+<!-- jmsFactory -->
+<bean id="jmsFactory" name="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+  <property name="brokerURL">
+           <value>failover://(tcp://127.0.0.1:61616)?randomize=false&amp;jms.useAsyncSend=true</value>
+  </property>
+</bean>
+
+<!-- pool -->
+<bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+     <property name="targetConnectionFactory"  ref="jmsFactory" />
+     <property name="sessionCacheSize" value="1" /> 
+</bean>
+
+<!-- queue -->
+<!-- jmsTemplate for queque-->
+<bean id="queueJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+       <property name="connectionFactory" ref="connectionFactory"></property>
+       <property name="defaultDestinationName" value="subject"></property>
+       <property name="deliveryPersistent" value="true"></property>
+       <property name="pubSubDomain" value="false"></property>
+       <property name="sessionAcknowledgeMode" value="1"></property>
+       <!-- 设置消息的过期时间为7天 explicitQosEnabled = true timeToLive单位为毫秒  -->
+       <property name="explicitQosEnabled" value="true"></property>
+       <property name="timeToLive" value="604800000"></property>
+</bean>
+<!-- queue -->
+<bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+   <constructor-arg index="0" value="queue.mytest" />
+</bean>
+<!-- Queue Producer -->
+<bean id="amqSender" class="com.tuniu.xxx.amq.AMQQueueSender">
+   <property name="jmsTemplate" ref="queueJmsTemplate"></property>
+   <property name="destination" ref="queueDestination"></property>
+</bean>
+
+<!-- topic -->
+<!-- jmsTemplate for Topic-->
+<bean id="topicJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+       <property name="connectionFactory" ref="connectionFactory"></property>
+       <property name="defaultDestinationName" value="subject"></property>
+       <property name="deliveryPersistent" value="true"></property>
+       <property name="pubSubDomain" value="true"></property>
+       <property name="sessionAcknowledgeMode" value="1"></property>
+       <!-- 设置消息的过期时间为7天 explicitQosEnabled = true timeToLive单位为毫秒 -->
+       <property name="explicitQosEnabled" value="true"></property>
+       <property name="timeToLive" value="604800000"></property>
+</bean>
+<!-- topic -->
+<bean id="topicDestination" class="org.apache.activemq.command.ActiveMQQueue">
+   <constructor-arg index="0" value=" topic.mytest" />
+</bean>
+<!-- Topic Producer -->
+<bean id="amqSender" class="com.tuniu.xxx.amq.AMQTopicSender">
+   <property name="jmsTemplate" ref="topicJmsTemplate "></property>
+   <property name="destination" ref="topicDestination"></property>
+</bean>
+</beans>
