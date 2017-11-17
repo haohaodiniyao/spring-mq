@@ -26,3 +26,39 @@ http://www.lai18.com/content/10230308.html?from=cancel
        <!-- 是否session作为事件来执行,默认false -->
        <property name="sessionTransacted" value="false"></property>
  </bean>
+ 
+ 
+ 1. 查看服务器AMQ TCP连接数 netstat -n|grep 61616|wc -l
+2. 查看服务器AMQ TCP连接数 带状态 netstat -n|grep 61616|grep ESTABLISHED|wc -l netstat -n|grep 61616|grep WAIT|wc -l
+3. 查看服务器AMQ TCP连接状态 TCP 两端ip及端口号,按照ip进行连接数统计 netstat -n|grep 61616|awk '/^tcp/ {print $5}'|awk -F":" '{++S[$4]} END {for(a in S) print a,S[a]} ' 
+
+
+服务端配置：过期消息将被丢弃，而不是放入DLQ队列
+http://activemq.apache.org/message-redelivery-and-dlq-handling.html
+
+<broker>
+   
+  <destinationPolicy>
+   <policyMap>
+     <policyEntries>
+       <!-- Set the following policy on all queues using the '>' wildcard -->
+       <policyEntry queue=">">
+         <!-- 
+           Tell the dead letter strategy not to process expired messages
+           so that they will just be discarded instead of being sent to
+           the DLQ 
+         -->
+         <deadLetterStrategy>
+           <sharedDeadLetterStrategy processExpired="false" />
+         </deadLetterStrategy>
+       </policyEntry>
+     </policyEntries>
+   </policyMap>
+  </destinationPolicy>
+   
+</broker>
+
+
+ActiveMQ重新投递
+https://www.cnblogs.com/huang0925/p/3590925.html
+http://www.bubuko.com/infodetail-2061297.html
