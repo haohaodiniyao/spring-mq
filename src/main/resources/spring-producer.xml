@@ -24,7 +24,7 @@
 <!-- pool -->
 <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
      <property name="targetConnectionFactory"  ref="jmsFactory" />
-     <property name="sessionCacheSize" value="1" /> 
+     <property name="sessionCacheSize" value="10" /> 
 </bean>
 
 <!-- queue -->

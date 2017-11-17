@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xmlns:jms="http://www.springframework.org/schema/jms"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+     http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-4.3.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<context:component-scan base-package="com.example.spring.mq" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:include-filter>
+	</context:component-scan>
+
+
+
+
+<bean id ="hello" name="hello" class="com.example.spring.mq.AMQCommonIdGenerator">
+</bean>
+ <!-- jmsFactory -->
+ <bean id="jmsFactory2" name="jmsFactory2" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL">
+      <value>failover://(tcp://127.0.0.1:61616)?randomize=false&amp;jms.useAsyncSend=true&amp;jms.prefetchPolicy.queuePrefetch=1</value>
+    </property>
+    <property name="clientID" value="hello.genClientId">
+    </property>
+ </bean>
+
+
+ <!-- queue 配置方法一  -->
+ <bean id="poolQueueConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <property name="connectionFactory" ref="jmsFactory2"></property>
+    <property name="maximumActive" value="1"></property>
+ </bean>
+ <!-- queue Consumer -->
+ <bean id="messageQueueReceiverAsyn" class="com.example.spring.mq.AMQQueueConsumerAsyn"></bean>
+ 
+ <!-- queue -->
+<bean id="queueDestination2" class="org.apache.activemq.command.ActiveMQQueue">
+   <constructor-arg index="0" value="queue.mytest" />
+</bean>
+
+    <bean id="messageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    	<property name="connectionFactory" ref="poolQueueConnectionFactory"/>
+    	<property name="destination" ref="queueDestination2"/>
+    	<property name="messageListener" ref="messageQueueReceiverAsyn"/>
+    	<property name="concurrentConsumers" value="5"></property>
+    	<property name="sessionAcknowledgeMode" value="4"></property>
+</bean>
+ 
+ 
+</beans>
