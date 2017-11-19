@@ -1,0 +1,133 @@
+#Message Oriented Middleware(MOM)#ActiveMQ#
+#启动 activemq start
+#指定日志文件 activemq start > /tmp/activemq.log
+#查看61616端口 netstat -an | grep 61616 
+#查看activemq进程号 ps -ef | grep activemq
+###
+#JMS domains:消息传递域，JMS规范中定义了两种消息传递域，点对点（point-to-point
+简写成PTP）消息传递域和发布订阅消息传递域(publish/subscribe 简写成pub/sub)
+
+点对点消息传递域的特点如下
+(1)每个消息只能有一个消费者
+(2)消息的生产者和消费者之间没有时间上的相关性,无论消费者在生产者发送消息的时候是否处于运行状态
+，他都可以提取消息
+
+发布/订阅消息传递域的特点如下：
+（1）每个消息可以有多个消费者
+(2)生产者和消费者之间有时间上的相关性,订阅一个主题的消费者只能消费自他订阅之后发布的消息，
+JMS规范允许客户端创建持久订阅，，这在一定程度上放松了时间上的相关性要求，持久订阅允许消费者消费它在未处于激活状态时发送的消息
+点对点消息传递域中，目的地被称为队列queue
+发布订阅消息传递域中，目的地被称为主题topic 
+
+JMS消息由消息头、属性和消息体组成
+标准jms消息头包含以下属性
+(1)JMSDestination 消息发送的目的地：Queue和Topic，自动分配
+（2）JMSDeDeliveryMode:传送模式，有两种：持久模式和非持久模式
+一条持久性的消息应该被传送“一次仅仅一次”
+这就意味着如果JMS提供者出现故障，该消息并不会丢失，他会在服务器恢复之后再次传递。
+一条非持久的消息最多传送一次，这意味着服务器出现故障，该消息将永远丢失。
+（3）JMSExpiration：消息过期时间，等于Destination的send方法中的timeToLive值加上发送时刻的GMT时间值如果timeToLive值等于零，则JMSExpiration被设置为零，表示该消息永不过期，
+如果发送后，在消息过期时间之后还没有被发送到目的地，则该消息被清除
+（4）JMSPriority：消息优先级，从0-9十个级别，0-4普通消息
+5-9加急消息，JMS保证加急消息要先于普通消息到达。默认是4级
+（5）JMSMessageID：唯一识别每个消息的标识，由JMS Provider产生
+（6）JMSTimestamp:一个JMS Provider在调用send方法是自动设置的。
+（7）JMSCorrelationID：用来连接到另外一个消息，
+（8）JMSReplyTo：提供本消息回复消息的目的地地址
+（9）JMSType：消息类型的识别符
+（10）JMSRedelivered：如果一个客户端收到一个设置了JMSRedelivered属性的消息，则表示可能客户端曾经在早些时候收到过该消息，但没有签收(acknowledged),如果该消息被重新传送，JMSRedelivered=true
+
+消息体（消息类型）
+TextMessage
+MapMessage
+BytesMessage
+StreamMessage
+ObjectMessage
+
+消息属性
+（1）应用程序设置和添加属性
+Message.setStringProperty("username","password")
+(2)JMS定义的属性(标准)
+使用JMSX作为属性名的前缀
+connection.getMetaData().getJMSXPropertyNames();
+（3）JMS供应商特定的属性(少用)
+JMS定义的标准属性如下：
+（1）JMSXUserID:发送消息的用户标识 发送时提供商设置
+（2）JMSXAppID：发送消息的应用标识  发送时提供商设置
+（3）JMSXDeliveryCount:转发消息重试次数， 发送时提供商设置
+（4）JMSXGroupID：消息所在消息组的标识，由客户端设置
+（5）JMSXGroupSeq：组内消息的序号，由客户端设置
+（6）JMSXProducerTXID：产生消息的事务的事务标识，发送时提供商设置
+（7）JMSXConsumerTXID：消费消息的事务的事务标识，接收时提供商设置
+（8）JMSXRcvTimestamp: JMS转发消息到消费者的时间，接收时提供商设置
+（9）JMSXState
+
+消息接受确认
+JMS消息只有在被确认之后，才认为已经被成功的消费了。
+消息消费成功三个阶段：
+客户接收消息
+客户处理消息
+消息被确认
+
+在(***事务***)性会话中，当一个事务被提交的时候，确认自动发生。
+
+在(***非事务***)性会话中，消息何时被确认取决于创建会话时的应答模式(acknowledgement mode)，
+改参数有以下三个值：
+Session.AUTO_ACKNOWLEDGE:当客户成功的从receive方法返回的时候，或者从MessageListener.omMessage方法成功返回的时候，会话自动确认客户收到了消息
+Session.CLIENT_ACKNOWLEDGE:客户通过调用消息的acknowledge方法确认消息。
+需要注意的是，在这种模式中，确认是在会话层上进行，确认一个被消费的消息将自动确认所有已被会话消费的消息。例如如果一个消费者消费了10个消息，然后在第5个消息确认，那么所有10个消息都被确认。
+Session.DUPS_ACKNOWLEDGE:该选择只是会话迟钝的确认消息的提交
+如果JMS provider失败，那么可能会导致一些重复的消息,
+那么JMS provider必须把消息头的JMSRedelivered字段设置为true
+
+消息持久性，JMS支持以下两种消息提交模式
+PERSISTENT：指示JMS provider持久保存消息，以保证消息不会因为JMS provider的失败而失败
+NON_PERSISTENT: 不要求JMS provider持久保存消息
+
+消息的临时目的地
+可以通过会话上的
+createTemporaryQueue
+和createTemporaryTopic
+方法创建临时目的地
+
+持久订阅
+首先消息生产者必须使用PERSISTENT提交消息，客户可以通过会话上的createDurableSubscriber方法来创建一个持久订阅，
+JMS provider会存储发布到持久订阅对应topic上的消息，如果最初创建持久订阅的客户或者任何其它客户，使用相同的连接工厂和连接的客户ID，相同的主题和相同的订阅名，再次调用会话上的createDurableSubscriber方法，那么该持久订阅就会被激活。JMS provider会向客户发送客户处于非激活状态时所发布的消息
+持久订阅在某一时刻只能有一个激活的订阅者。持久订阅在创建之后会一直保留，直到应用程序调用会话上的unsubscribe方法。
+
+本地事务
+在一个JMS客户端，可以使用本地事务来组合消息的发送和接收
+JMS Session接口提供了commit和rollback方法。
+事务提交意味着生产的所有消息被发送，消费的所有消息被确认
+事务回滚意味着生产的所有消息被销毁
+消费的所有消息被恢复并重新提交，除非它们已经过期
+
+JMS PTP(Point-to-Point)模型定义了客户端如何向队列发送消息，从队列接收消息，以及浏览队列中的消息
+PTP的一些特点
+（1）如果在session关闭时，有一些消息已经被收到，但是还没有被签收(acknowledged)，那么消费者下次连接到相同的队列时，这些消息还会被再次接收
+（2）如果用户在receive方法中设定了消息选择条件，那么不符合条件的消息会留在队列中，不会被接收到
+（3）队列可以长久保存消息直到消费者受到消息，消费者不需要因为担心消息丢失而时刻和队列保持激活的连接状态，充分体现了异步传输模式的优势
+
+JMS的Pub/Sub模型定义了如何向一个内容节点发布和订阅消息，这些节点被称作topic
+主题可以被认为是消息传输中介，发布者publisher发布消息到主题，订阅者subscribe从主题订阅消息
+主题是的消息订阅者和消息发布者保持互相独立，不需要接触即可保证消息的传送
+Pub/Sub的一些特点
+（1）消息订阅分为持久订阅和非持久订阅
+非持久订阅只有当客户端处于激活状态，也就是和JMS provider保持连接状态才能收到发送到某个主题的消息，而当客户端处于离线状态，这个时间段发送到主题的消息将会丢失，永远不会收到。
+
+持久订阅时，客户端向JMS注册一个识别自己身份的ID，当这个客户端处于离线时，JMS provider会为这个ID保存所有发送到主题的消息，当客户端再次连接到JMS provider时，会根据自己的ID得到所有自己处于离线是发送到主题的消息
+（2）如果用户在receive方法中设定了消息选择条件，那么不符合条件的消息不会被接收
+（3）非持久订阅状态下，不能恢复或重新派送一个未签收的消息，只有持久订阅才能恢复或重新派送一个未签收的消息
+（4）当所有的消息必须接收，则用持久订阅，当丢失消息能够被容忍，则用非持久订阅
+
+
+持久化消息
+这是ActiveMQ的默认传送模式，此模式保证这些消息只被传送一次和成功使用一次，对于这些消息，可靠性是优先考虑的因素。可靠性的另一个重要方面是确保持久性消息传送至目标后，消息服务在向消费者传送它们之前不会丢失这些消息。这意味着在持久性消息传送至目标是，消息服务将其放入持久性数据存储，如果消息服务由于某种原因导致失败，它可以恢复此消息并将此消息传送至相应的消费者，虽然这样增加了消息传送的开销，但却增加了可靠性
+非持久化消息
+保证这些消息最多被传送一次，对于这些消息，可靠性并非主要考虑的因素，此模式并不要就持久性数据存储，也不保证消息服务由于某种原因导致失败后消息不会丢失。
+有两种方法指定传送模式
+（1）使用setDeliveryMode方法，这样所有的消息都采用此传送模式
+producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
+(2)使用send方法为每一条消息设置传送模式
+
+
