@@ -57,6 +57,7 @@ public class AMQConsumerConfig {
 	@Bean
 	public RedeliveryPolicy redeliveryPolicy(){
 		//https://www.cnblogs.com/olmlo/p/4708660.html
+		//http://activemq.apache.org/redelivery-policy.html
 		RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
 		//启用倍数递增方式增加延迟时间 默认false
 		redeliveryPolicy.setUseExponentialBackOff(true);
