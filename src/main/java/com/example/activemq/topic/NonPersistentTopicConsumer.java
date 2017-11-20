@@ -11,14 +11,14 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 /**
- * 非持久化消息消费者
+ * 非持久化topic消息消费者
  * @author kaiyao
  *
  */
 public class NonPersistentTopicConsumer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
 		Connection connection = connectionFactory.createConnection();
 		connection.start();
 		// boolean transacted, int acknowledgeMode
@@ -28,7 +28,7 @@ public class NonPersistentTopicConsumer {
 		MessageConsumer consumer = session.createConsumer(destination);
 		TextMessage message = (TextMessage)consumer.receive();
 		while(message != null){
-			System.out.println("consumer:"+message.getText());
+			System.out.println("topic consumer:"+message.getText());
 			message = (TextMessage)consumer.receive();
 		}
 		session.close();

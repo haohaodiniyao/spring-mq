@@ -12,14 +12,14 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 /**
- * 持久化消息生产者
+ * 持久化topic消息生产者
  * @author kaiyao
  *
  */
 public class PersistentTopicProducer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
 		Connection connection = connectionFactory.createConnection();
 
 		// boolean transacted, int acknowledgeMode
@@ -32,7 +32,7 @@ public class PersistentTopicProducer {
 		connection.start();
 		for(int i=1;i<5;i++){
 			//TextMessage
-			TextMessage message = session.createTextMessage("this is test message "+i);
+			TextMessage message = session.createTextMessage("this is topic persistent message "+i);
 			producer.send(message);	
 		}
 		session.commit();

@@ -3,6 +3,8 @@
 #指定日志文件 activemq start > /tmp/activemq.log
 #查看61616端口 netstat -an | grep 61616 
 #查看activemq进程号 ps -ef | grep activemq
+日志
+tail -200f data/activemq.log
 ###
 #JMS domains:消息传递域，
 JMS规范中定义了两种消息传递域，

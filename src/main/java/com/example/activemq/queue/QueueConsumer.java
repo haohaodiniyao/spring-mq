@@ -1,7 +1,5 @@
 package com.example.activemq.queue;
 
-import java.util.Enumeration;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -9,7 +7,6 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import javax.jms.TemporaryQueue;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
@@ -21,13 +18,9 @@ import org.apache.activemq.ActiveMQSession;
 public class QueueConsumer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
 		Connection connection = connectionFactory.createConnection();
 		connection.start();
-		Enumeration enumeration = connection.getMetaData().getJMSXPropertyNames();
-		while(enumeration.hasMoreElements()){
-			System.out.println(enumeration.nextElement()+"#");
-		}
 		// boolean transacted, int acknowledgeMode
 		// 创建会话
 		Session session = connection.createSession(false, ActiveMQSession.CLIENT_ACKNOWLEDGE);
@@ -37,11 +30,16 @@ public class QueueConsumer {
 			//TextMessage
 			//TextMessage message = (TextMessage) consumer.receive();
 			MapMessage message = (MapMessage)consumer.receive();
-			System.out.println(message.getJMSReplyTo());
-			System.out.println("JMSRedelivered:"+message.getJMSRedelivered());
-			System.out.println("属性:" + message.getStringProperty("extra"));
-			System.out.println("消息:" + message.getString("message---"+i));
+			System.out.println("收到属性:" + message.getStringProperty("extra"));
+			System.out.println("收到消息:" + message.getString("message---"+i));
 			if(i == 4){
+				/**
+				 * 确认消息
+				 * public static final int INDIVIDUAL_ACKNOWLEDGE = 4
+				 * 单条消息确认
+				 * 区别
+				 * public static final int CLIENT_ACKNOWLEDGE = 2;
+				 */
 				message.acknowledge();
 			}
 			//session事务提交
