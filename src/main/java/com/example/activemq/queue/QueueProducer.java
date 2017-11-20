@@ -34,7 +34,7 @@ public class QueueProducer {
 		 *  public static final int SESSION_TRANSACTED = 0; 
 		 *  
 		 **/
-		Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+		Session session = connection.createSession(true, ActiveMQSession.SESSION_TRANSACTED);
         /**
          * 目的地
          */
@@ -43,7 +43,7 @@ public class QueueProducer {
 		 * 生产者
 		 */
 		MessageProducer producer = session.createProducer(destination);
-		int size = 5;
+		int size = 1;
 		for(int i=1;i<size;i++){
 			//TextMessage
 			//TextMessage message = session.createTextMessage("this is test message "+i);
@@ -56,10 +56,10 @@ public class QueueProducer {
 			/**
 			 * 消息内容
 			 */
-			message.setString("message---"+i, "my map message 777 "+i);
+			message.setString("message---"+i, "my map message eee "+i);
 			producer.send(message);	
 		}
-//		session.commit();
+		session.commit();
 		session.close();
 		connection.close();
 	}

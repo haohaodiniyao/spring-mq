@@ -1,7 +1,9 @@
 package com.example.spring.mq;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -18,7 +20,7 @@ public class AMQQueueConsumerAsyn implements SessionAwareMessageListener<TextMes
 	@Override
 	public void onMessage(TextMessage message, Session session) throws JMSException {
 		try {
-			System.out.println("线程:"+Thread.currentThread()+"消费者:"+message.getText());
+			System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+"线程:"+Thread.currentThread()+"消费者:"+message.getText());
 			int a = 1/0;
 			//消息确认
 			message.acknowledge();

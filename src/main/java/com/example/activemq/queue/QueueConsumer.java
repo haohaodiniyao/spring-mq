@@ -1,5 +1,7 @@
 package com.example.activemq.queue;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -23,16 +25,23 @@ public class QueueConsumer {
 		connection.start();
 		// boolean transacted, int acknowledgeMode
 		// 创建会话
-		Session session = connection.createSession(false, ActiveMQSession.CLIENT_ACKNOWLEDGE);
+		Session session = connection.createSession(true, ActiveMQSession.SESSION_TRANSACTED);
 		Destination destination = session.createQueue("queue.mytest");
 		MessageConsumer consumer = session.createConsumer(destination);
-		for(int i=1;i<5;i++){
-			//TextMessage
-			//TextMessage message = (TextMessage) consumer.receive();
-			MapMessage message = (MapMessage)consumer.receive();
+		
+		//TextMessage
+		//TextMessage message = (TextMessage) consumer.receive();
+		MapMessage message = (MapMessage)consumer.receive();
+		int i = 1;
+		while(message != null){
+			//是否是消息重发
+			boolean redelivered = message.getJMSRedelivered();
+			System.out.println("消息重发:"+redelivered);
 			System.out.println("收到属性:" + message.getStringProperty("extra"));
 			System.out.println("收到消息:" + message.getString("message---"+i));
-			if(i == 4){
+			System.out.println("-------------------------------------------");
+//			session.commit();
+			if(i == 1){
 				/**
 				 * 确认消息
 				 * public static final int INDIVIDUAL_ACKNOWLEDGE = 4
@@ -40,10 +49,18 @@ public class QueueConsumer {
 				 * 区别
 				 * public static final int CLIENT_ACKNOWLEDGE = 2;
 				 */
-				message.acknowledge();
+//				message.acknowledge();
+				session.commit();
 			}
+//			message.acknowledge();
 			//session事务提交
 //			session.commit();
+			i++;
+		}
+		try {
+			TimeUnit.MINUTES.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		session.close();
 		connection.close();
