@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xmlns:jms="http://www.springframework.org/schema/jms"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+     http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-4.3.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<context:component-scan base-package="com.example.spring.mq" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:include-filter>
+	</context:component-scan>
+
+    <bean id="helloService1" class="com.example.activemq.HelloServiceImp1">
+    	<property name="agentId" value="2"></property>
+    </bean>
+    
+    <bean id="helloService2" class="com.example.activemq.HelloServiceImp2">
+    	<property name="agentId" value="8"></property>
+    </bean>
+</beans>
