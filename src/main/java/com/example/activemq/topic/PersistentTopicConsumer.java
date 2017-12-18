@@ -18,7 +18,7 @@ import org.apache.activemq.ActiveMQSession;
 public class PersistentTopicConsumer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 		Connection connection = connectionFactory.createConnection();
 		//clientID 2-1 ***************
 		connection.setClientID("cc1");
@@ -26,15 +26,21 @@ public class PersistentTopicConsumer {
 		// boolean transacted, int acknowledgeMode
 		// 创建会话
 		Session session = connection.createSession(true, ActiveMQSession.AUTO_ACKNOWLEDGE);
-		Topic topic = session.createTopic("mytopic");
+		Topic topic = session.createTopic("mytopic2");
 		//2-2 必须先运行注册**************
 		TopicSubscriber ts = session.createDurableSubscriber(topic, "T1");
 		connection.start();
-		TextMessage message = (TextMessage)ts.receive();
-		while(message != null){
-			System.out.println("topic persistent consumer:"+message.getText());
-			message = (TextMessage)ts.receive();
+//		TextMessage message = (TextMessage)ts.receive();
+//		while(message != null){
+//			System.out.println("topic persistent consumer:"+message.getText());
+//			message = (TextMessage)ts.receive();
+//		}
+		
+		for(int i=0;i<3;i++){
+			TextMessage message = (TextMessage)ts.receive();
+			System.out.println(message.getText());
 		}
+		
 		session.commit();
 		session.close();
 		connection.close();

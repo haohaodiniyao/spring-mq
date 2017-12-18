@@ -19,20 +19,20 @@ import org.apache.activemq.ActiveMQSession;
 public class PersistentTopicProducer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 		Connection connection = connectionFactory.createConnection();
 
 		// boolean transacted, int acknowledgeMode
 		// 创建会话
 		Session session = connection.createSession(true, ActiveMQSession.AUTO_ACKNOWLEDGE);
-		Destination destination = session.createTopic("mytopic");
+		Destination destination = session.createTopic("VirtualTopic.Orders");
 		MessageProducer producer = session.createProducer(destination);
 		//1-1 持久化topic***************
 		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 		connection.start();
-		for(int i=1;i<5;i++){
+		for(int i=0;i<3;i++){
 			//TextMessage
-			TextMessage message = session.createTextMessage("this is topic persistent message "+i);
+			TextMessage message = session.createTextMessage("this is topic persistent message ccc"+i);
 			producer.send(message);	
 		}
 		session.commit();

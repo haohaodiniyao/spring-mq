@@ -1,0 +1,41 @@
+###Destination高级特性值Wildcards通配符
+通配符用来支持名字分层体系，它不是JMS规范的一部分，是ActiveMQ的扩展
+ActiveMQ支持以下三种通配符
+ .  用于作为路径上名字间的分隔符
+ *  用于匹配路径上的任何名字
+ >  用于递归地匹配任何以这个名字开始的destination
+ 示例，假设有两个destination
+ PRICE.STOCK.NASDAQ.IBM（IBM在纳斯达克的股价）
+ PRICE.STOCK.NYSE.SUNW（SUN在纽约证券交易所的股价）
+ 那么：
+ PIRCE.>      (匹配任何产品的股价变动)
+ PRICE.STOCK.> 	(匹配任何产品的股票价格变动)
+ PRICE.STOCK.NASDAQ.* (匹配任何在纳斯达克下面的产品的股票价格变动)
+ PRICE.STOCK.*.IBM (匹配任何IBM的产品的股票价格变动)
+ 
+ 修改路径分割符，比如用/替换.
+ http://activemq.apache.org/wildcards.html
+ 
+###组合队列Composite Destinations
+组合队列允许用一个虚拟的destination代表多个destinations
+这个就可以通过组合队列在一个操作中同时向多个队列发送消息
+1)客户端实现方式
+在组合队列中，多个destination之间用，分割
+new ActiveMQQueue("FOO.A,FOO.B,FOO.C");
+如果希望使用不同的destination，需要加上前缀queue://或topic://
+new ActiveMQQueue("FOO.A,topic://NOTIFY.FOO.A");
+2)在xml配置实现方式 
+http://activemq.apache.org/virtual-destinations.html
+###filtered destination过滤
+###可以排除destination
+###可以在xml中配置启动是就创建destination
+###Delete Inactive Destinations删除不活跃的，自动检测
+http://activemq.apache.org/delete-inactive-destinations.html
+###Destination Options
+http://activemq.apache.org/destination-options.html
+队列选项是给    consumer  在JMS规范之外添加的添加的功能特性,
+1)consumer.prefetchSize   consumer持有的未确认的最大消息数
+2)consumer.dispatchAsync  是否异步分发,默认true
+3)
+###虚拟主题virtual topics
+

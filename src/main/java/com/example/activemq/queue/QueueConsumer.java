@@ -6,9 +6,9 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
@@ -20,28 +20,34 @@ import org.apache.activemq.ActiveMQSession;
 public class QueueConsumer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 		Connection connection = connectionFactory.createConnection();
 		connection.start();
 		// boolean transacted, int acknowledgeMode
 		// 创建会话
 		Session session = connection.createSession(true, ActiveMQSession.SESSION_TRANSACTED);
-		Destination destination = session.createQueue("queue.mytest");
+		Destination destination = session.createQueue("Consumer.A.VirtualTopic.Orders");
 		MessageConsumer consumer = session.createConsumer(destination);
 		
 		//TextMessage
-		//TextMessage message = (TextMessage) consumer.receive();
-		MapMessage message = (MapMessage)consumer.receive();
-		int i = 1;
-		while(message != null){
+		
+		for(int i=0;i<3;i++){
+			TextMessage message = (TextMessage) consumer.receive();
+			System.out.println(message.getText());
+		}
+		
+		
+//		MapMessage message = (MapMessage)consumer.receive();
+//		int i = 1;
+//		while(message != null){
 			//是否是消息重发
-			boolean redelivered = message.getJMSRedelivered();
-			System.out.println("消息重发:"+redelivered);
-			System.out.println("收到属性:" + message.getStringProperty("extra"));
-			System.out.println("收到消息:" + message.getString("message---"+i));
-			System.out.println("-------------------------------------------");
+//			boolean redelivered = message.getJMSRedelivered();
+//			System.out.println("消息重发:"+redelivered);
+//			System.out.println("收到属性:" + message.getStringProperty("extra"));
+//			System.out.println("收到消息:" + message.getString("message---"+i));
+//			System.out.println("-------------------------------------------");
 //			session.commit();
-			if(i == 1){
+//			if(i == 1){
 				/**
 				 * 确认消息
 				 * public static final int INDIVIDUAL_ACKNOWLEDGE = 4
@@ -50,18 +56,21 @@ public class QueueConsumer {
 				 * public static final int CLIENT_ACKNOWLEDGE = 2;
 				 */
 //				message.acknowledge();
-				session.commit();
-			}
+//				session.commit();
+//			}
 //			message.acknowledge();
 			//session事务提交
 //			session.commit();
-			i++;
-		}
-		try {
-			TimeUnit.MINUTES.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//			i++;
+//		}
+//		try {
+//			TimeUnit.MINUTES.sleep(100);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+		
+
+		session.commit();
 		session.close();
 		connection.close();
 	}

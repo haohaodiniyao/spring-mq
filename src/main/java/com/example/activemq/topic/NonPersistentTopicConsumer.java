@@ -18,7 +18,7 @@ import org.apache.activemq.ActiveMQSession;
 public class NonPersistentTopicConsumer {
 
 	public static void main(String[] args) throws JMSException {
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://192.168.157.151:61616");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 		Connection connection = connectionFactory.createConnection();
 		connection.start();
 		// boolean transacted, int acknowledgeMode
